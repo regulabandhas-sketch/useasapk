@@ -3,69 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USEAS | Cloud Converter</title>
+    <title>USEAS | Official Cloud Hub</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
     <style>
-        :root { --p: #9d4edd; --a: #00f2ff; --glass: rgba(255, 255, 255, 0.1); }
-        body { font-family: 'Segoe UI', sans-serif; background: #0b090a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 25px; width: 380px; text-align: center; }
-        #logo { cursor: pointer; color: var(--p); font-size: 2.5rem; font-weight: bold; margin: 0; }
-        .upload-box { border: 2px dashed rgba(255,255,255,0.2); padding: 40px 10px; border-radius: 20px; margin: 20px 0; cursor: pointer; transition: 0.3s; }
-        .upload-box:hover { border-color: var(--p); background: rgba(157, 78, 221, 0.05); }
-        .btn { background: var(--p); color: white; border: none; padding: 16px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn:disabled { background: #444; }
-        #result { display: none; margin-top: 20px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; border: 1px solid var(--a); }
-        .url-text { font-size: 0.75rem; color: var(--a); word-break: break-all; margin: 10px 0; padding: 10px; background: #000; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-        progress { width: 100%; height: 10px; accent-color: var(--p); display: none; margin: 10px 0; }
+        :root {
+            --primary: #9d4edd;
+            --accent: #00f2ff;
+            --bg: #0b090a;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top right, #240046, #0b090a);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #logo {
+            font-size: 3rem;
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(45deg, #c77dff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #bc98ff;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            padding: 50px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(157, 78, 221, 0.1);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(157, 78, 221, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn:disabled { background: #444; cursor: not-allowed; }
+
+        #result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+        }
+
+        .url-box {
+            font-size: 0.75rem;
+            background: #000;
+            padding: 12px;
+            border-radius: 10px;
+            word-break: break-all;
+            margin: 15px 0;
+            color: var(--accent);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        progress {
+            width: 100%;
+            height: 12px;
+            accent-color: var(--primary);
+            display: none;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1 id="logo">USEAS</h1>
-    <p style="font-size: 0.8rem; color: #bc98ff; margin-top: 5px;">Google Cloud 5GB Portal</p>
+    <h1 id="logo" onclick="adminCheck()">USEAS</h1>
+    <div class="subtitle">GOOGLE CLOUD STORAGE ACTIVE</div>
 
-    <div class="upload-box" onclick="document.getElementById('fileIn').click()">
-        <span id="label">📂 Select File to Convert</span>
-        <input type="file" id="fileIn" hidden onchange="fileSelected()">
+    <div class="upload-area" onclick="document.getElementById('fileIn').click()">
+        <span id="label">📁 Select APK, PDF, or Image</span>
+        <input type="file" id="fileIn" hidden onchange="filePicked()">
     </div>
 
     <progress id="pBar" value="0" max="100"></progress>
-    <button class="btn" id="upBtn" onclick="startCloudUpload()">Convert & Get Link</button>
+    <button class="btn" id="upBtn" onclick="uploadNow()">CONVERT & GENERATE LINK</button>
 
-    <div id="result">
-        <p style="margin:0; font-weight: bold;">Cloud Link Ready! ✅</p>
-        <div class="url-text" id="linkOut">Generating...</div>
-        <button class="btn" style="background:#333; margin-top:10px; padding: 10px;" onclick="copyLink()">Copy Direct Link</button>
+    <div id="result-section">
+        <p style="color: var(--accent); font-weight: bold; margin: 0;">Cloud Link Created! ✅</p>
+        <div class="url-box" id="urlOut">Link will appear here...</div>
+        <button class="btn" style="background:#333; padding: 12px; margin-top: 10px;" onclick="copyToClipboard()">COPY DIRECT LINK</button>
     </div>
 </div>
 
 <script>
-    // YOUR OFFICIAL CONFIGURATION
+    // YOUR OFFICIAL FIREBASE CONFIGURATION
     const firebaseConfig = {
-      apiKey: "AIzaSyDeSZenagrebQwCHoZ5mMLHtT2fimxqBqk",
-      authDomain: "useasapk.firebaseapp.com",
-      projectId: "useasapk",
-      storageBucket: "useasapk.firebasestorage.app",
-      messagingSenderId: "381403433956",
-      appId: "1:381403433956:web:d684fd12cd64086711d5f1"
+        apiKey: "AIzaSyDeSZenagrebQwCHoZ5mMLHtT2fimxqBqk",
+        authDomain: "useasapk.firebaseapp.com",
+        projectId: "useasapk",
+        storageBucket: "useasapk.firebasestorage.app",
+        messagingSenderId: "381403433956",
+        appId: "1:381403433956:web:d684fd12cd64086711d5f1"
     };
 
-    // Initialize Firebase Compat
+    // Initialize
     firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
 
-    let myFile = null;
+    let selectedFile = null;
 
-    function fileSelected() {
-        myFile = document.getElementById('fileIn').files[0];
-        if(myFile) document.getElementById('label').innerText = "File: " + myFile.name;
+    function filePicked() {
+        selectedFile = document.getElementById('fileIn').files[0];
+        if(selectedFile) {
+            document.getElementById('label').innerText = "Ready: " + selectedFile.name;
+        }
     }
 
-    function startCloudUpload() {
-        if(!myFile) return alert("Select a file first!");
+    function uploadNow() {
+        if(!selectedFile) return alert("Please select a file first!");
         
         const btn = document.getElementById('upBtn');
         const bar = document.getElementById('pBar');
@@ -74,50 +171,60 @@
         btn.innerText = "Connecting to Google Cloud...";
         bar.style.display = "block";
 
-        // Upload to 'conversions' folder in your Firebase storage
-        const ref = storage.ref('conversions/' + myFile.name);
-        const task = ref.put(myFile);
+        // Setting Metadata so the browser forces a download
+        const metadata = {
+            contentDisposition: 'attachment; filename="' + selectedFile.name + '"'
+        };
 
-        task.on('state_changed', 
+        const storageRef = storage.ref('useas_hub/' + selectedFile.name);
+        const uploadTask = storageRef.put(selectedFile, metadata);
+
+        uploadTask.on('state_changed', 
             (snapshot) => {
                 const percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 bar.value = percent;
-                btn.innerText = "Uploading: " + Math.round(percent) + "%";
+                btn.innerText = "Converting: " + Math.round(percent) + "%";
             }, 
-            (err) => { 
-                alert("Upload Failed! Make sure your Storage Rules are set to Public.");
-                console.error(err);
+            (error) => { 
+                alert("Error! Make sure your Firebase Storage Rules are set to Public.");
+                console.error(error);
                 btn.disabled = false;
+                btn.innerText = "TRY AGAIN";
             }, 
             () => {
-                task.snapshot.ref.getDownloadURL().then((url) => {
-                    document.getElementById('result').style.display = "block";
-                    document.getElementById('linkOut').innerText = url;
-                    btn.innerText = "Conversion Finished!";
+                uploadTask.snapshot.ref.getDownloadURL().then((url) => {
+                    document.getElementById('result-section').style.display = "block";
+                    document.getElementById('urlOut').innerText = url;
+                    btn.innerText = "TASK COMPLETE!";
                     bar.style.display = "none";
                     
-                    // Trigger Download
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = "USEAS_" + myFile.name + ".apk";
-                    a.click();
+                    // AUTO-DOWNLOAD FEATURE
+                    const downloadAnchor = document.createElement('a');
+                    downloadAnchor.href = url;
+                    downloadAnchor.download = "USEAS_" + selectedFile.name;
+                    document.body.appendChild(downloadAnchor);
+                    downloadAnchor.click();
+                    document.body.removeChild(downloadAnchor);
                 });
             }
         );
     }
 
-    function copyLink() {
-        const text = document.getElementById('linkOut').innerText;
-        navigator.clipboard.writeText(text);
-        alert("Cloud Link Copied! You can paste this anywhere.");
+    function copyToClipboard() {
+        const linkText = document.getElementById('urlOut').innerText;
+        navigator.clipboard.writeText(linkText);
+        alert("Cloud Link Copied! You can now paste this in any browser.");
     }
 
-    // Secret Admin 5-tap (USEAS feature)
-    let taps = 0;
-    document.getElementById('logo').onclick = () => {
-        taps++;
-        if (taps === 5) { alert("USEAS Cloud Admin: Status Normal"); taps = 0; }
-    };
+    // Secret Admin Feature (5 Taps)
+    let tapCounter = 0;
+    function adminCheck() {
+        tapCounter++;
+        if (tapCounter === 5) {
+            alert("USEAS Admin: System Calibrated & Connected");
+            tapCounter = 0;
+        }
+    }
 </script>
 
 </body>
